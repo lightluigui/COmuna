@@ -41,7 +41,7 @@ def create_output_folder(output_folder):
 
 def execute_indesign_script(input_folder, output_folder):
     # Caminho para o script JavaScript do InDesign
-    indesign_script_path = "C:/Users/Matheus/Documents/comuna"
+    indesign_script_path = "F:/0Arthur/Downloads/Teste de Sistema CPC"
     # Caminho para o executável do InDesign (mude conforme seu sistema operacional e instalação)
     indesign_path = "C:/Program Files/Adobe/Adobe InDesign 2024/InDesign.exe"
 
