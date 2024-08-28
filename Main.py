@@ -1,9 +1,9 @@
 import os
+import subprocess
 import shutil
 from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog, messagebox
-import subprocess
 
 # Funções existentes
 def scan_folder(input_folder):
@@ -38,12 +38,11 @@ def organize_files(files, output_folder):
 def create_output_folder(output_folder):
     Path(output_folder).mkdir(parents=True, exist_ok=True)
 
-
 def execute_indesign_script(input_folder, output_folder):
-    # Caminho para o script JavaScript do InDesign
-    indesign_script_path = "F:/0Arthur/Downloads/Teste de Sistema CPC"
-    # Caminho para o executável do InDesign (mude conforme seu sistema operacional e instalação)
-    indesign_path = "C:/Program Files/Adobe/Adobe InDesign 2024/InDesign.exe"
+    # Caminho para o script JavaScript do InDesign e do executável
+    if not indesign_script_path or not indesign_path:
+        messagebox.showwarning("Atenção", "Por favor, selecione os caminhos do script e do executável do InDesign.")
+        return
 
     # Comando para executar o script
     command = [
@@ -89,13 +88,25 @@ def select_output_folder():
     output_folder = Path(filedialog.askdirectory(title="Selecione a Pasta de Saída"))
     output_label.config(text=f"Saída: {output_folder}")
 
+def select_script_path():
+    global indesign_script_path
+    indesign_script_path = filedialog.askopenfilename(title="Selecione o Script do InDesign", filetypes=[("JavaScript Files", "*.jsx;*.js")])
+    script_label.config(text=f"Script: {indesign_script_path}")
+
+def select_exe_path():
+    global indesign_path
+    indesign_path = filedialog.askopenfilename(title="Selecione o Executável do Adobe InDesign", filetypes=[("Executável", "*.exe")])
+    exe_label.config(text=f"InDesign Executável: {indesign_path}")
+
 # Inicialização da janela principal
 root = tk.Tk()
 root.title("Organizador de Arquivos")
-root.geometry("640x320")
+root.geometry("640x400")  # Aumenta a altura para acomodar mais elementos
 
 input_folder = None
 output_folder = None
+indesign_script_path = None
+indesign_path = None
 
 # Layout da interface gráfica
 frame = tk.Frame(root, padx=10, pady=10)
@@ -112,6 +123,18 @@ output_label.pack(pady=5)
 
 output_button = tk.Button(frame, text="Selecionar Pasta de Saída", command=select_output_folder)
 output_button.pack(pady=5)
+
+script_label = tk.Label(frame, text="Script: Não selecionado")
+script_label.pack(pady=5)
+
+script_button = tk.Button(frame, text="Selecionar Script do InDesign", command=select_script_path)
+script_button.pack(pady=5)
+
+exe_label = tk.Label(frame, text="InDesign Executável: Não selecionado")
+exe_label.pack(pady=5)
+
+exe_button = tk.Button(frame, text="Selecionar Executável do Adobe InDesign", command=select_exe_path)
+exe_button.pack(pady=5)
 
 execute_button = tk.Button(frame, text="Executar", command=execute_process)
 execute_button.pack(pady=20)
