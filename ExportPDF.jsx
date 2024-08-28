@@ -1,23 +1,36 @@
-'#target indesing';
-
-// Função para abrir todos os arquivos de uma pasta
-function openFilesInFolder(folderPath) {
+// Função para importar todos os arquivos PDF de uma pasta em um novo documento InDesign
+function importPDFsInFolder(folderPath) {
     var folder = new Folder(folderPath);
-    var files = folder.getFiles("*.jpg"); // Considerando arquivos .indd, ajuste conforme necessário
+    var files = folder.getFiles("*.pdf"); // Ajustado para arquivos .pdf
 
     if (files.length == 0) {
-        alert("Nenhum arquivo encontrado na pasta especificada.");
+        alert("Nenhum arquivo PDF encontrado na pasta especificada.");
         return null;
     }
 
     var mergedDocument = app.documents.add();
+    var page, pdfPageOptions;
+
+    // Configuração para importar PDFs
+    pdfPageOptions = app.pdfPlacePreferences;
+    pdfPageOptions.pdfCrop = PDFCrop.CROP_MEDIA; // Configura para colocar todo o conteúdo do PDF
+
     for (var i = 0; i < files.length; i++) {
-        var tempDoc = app.open(files[i]);
-        
-        // Importa todas as páginas do documento temporário para o documento final
+        var pdfFile = new File(files[i]);
+
+        // Adiciona uma nova página para cada página do PDF importado
+        var tempDoc = app.open(pdfFile, false); // Abre o PDF sem exibir
+
         for (var j = 0; j < tempDoc.pages.length; j++) {
-            tempDoc.pages[j].duplicate(LocationOptions.AT_END, mergedDocument.pages[-1]);
+            if (mergedDocument.pages.length == 0) {
+                page = mergedDocument.pages.add();
+            } else {
+                page = mergedDocument.pages.add(LocationOptions.AT_END);
+            }
+
+            mergedDocument.pages[-1].place(pdfFile, [0, 0], j + 1);
         }
+
         tempDoc.close(SaveOptions.NO);
     }
 
@@ -47,11 +60,11 @@ function exportToPDF(document, outputFolder) {
     document.exportFile(ExportFormat.PDF_TYPE, pdfFile, false, pdfExportPreset);
 }
 
-var inputFolderPath = Folder.selectDialog("Selecione a pasta contendo os arquivos InDesign");
+var inputFolderPath = Folder.selectDialog("Selecione a pasta contendo os arquivos PDF");
 var outputFolderPath = Folder.selectDialog("Selecione a pasta para salvar o PDF exportado");
 
 if (inputFolderPath && outputFolderPath) {
-    var mergedDoc = openFilesInFolder(inputFolderPath.fsName);
+    var mergedDoc = importPDFsInFolder(inputFolderPath.fsName);
     if (mergedDoc) {
         exportToPDF(mergedDoc, outputFolderPath.fsName);
         mergedDoc.close(SaveOptions.NO);
